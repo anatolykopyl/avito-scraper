@@ -8,12 +8,16 @@ sed 's|href="|http://avito.ru|g' | sed 's|"||g')
 
 echo "$list" | while read -r url
 do
-    curl -s -H "$UA" -L $url |
+    price=$(curl -s -H "$UA" -L $url |
     grep 'itemprop="price"' |
     ggrep -oP '(?<=content=").*?(?=")' |
-    head -1
+    head -1)
 
-    echo $url
+    echo $price $url
+    if (($price <= 9000)) && (($price >= 6000)); then
+        echo $price, $url >> output.csv
+        osascript -e "display notification \"Нашел за $price\""
+    fi
 
-    sleep 12;
+    sleep 12
 done
